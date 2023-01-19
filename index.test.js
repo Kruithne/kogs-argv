@@ -134,6 +134,18 @@ test('parse() arguments prototype', () => {
 	expect(results.arguments.asString('asString')).toBe(undefined);
 });
 
+test('parse() options prototype', () => {
+	const results = parse(['--foo=bar']);
+
+	// results.options should work as a normal object.
+	expect(Object.keys(results.options).length).toBe(1);
+
+	// Ensure that prototype cannot be accessed through as-functions.
+	expect(results.options.asString('toString')).toBe(undefined);
+	expect(results.options.asString('prototype')).toBe(undefined);
+	expect(results.options.asString('asString')).toBe(undefined);
+});
+
 test('parse() options', () => {
 	const results = parse(['Earth', '-c', '--test', '-b', 'free', '--my-other-test', 'Jupiter', 'Mars', '--sun=true', 'Venus']);
 
