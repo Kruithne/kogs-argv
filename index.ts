@@ -234,7 +234,7 @@ export function parse(argv: string[] = process.argv.splice(2)): ParsedArgs  {
 				// Option with value (e.g. --option=value)
 				key = arg.substring(2, index);
 				value = arg.substring(index + 1);
-			} else if (argv.length > 0 && !argv[0]?.startsWith('-')) {
+			} else if (argv.length > 0 && !argv[0].startsWith?.('-')) {
 				// Option with value (e.g. --option value)
 				key = arg.substring(2);
 				value = argv.shift();
