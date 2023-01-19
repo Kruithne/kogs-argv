@@ -165,6 +165,106 @@ test('parse() key sanitzation', () => {
 	expect(results.options['6424']).toBe(undefined);
 });
 
-// TODO: Test parse() options asBoolean.
-// TODO: Test parse() options asNumber.
-// TODO: Test parse() options asString.
+test('parse() options asBoolean', () => {
+	// Verbose on purpose for test failure readability.
+	expect(parse(['--test']).options.asBoolean('test')).toBe(true);
+	expect(parse(['--test=false']).options.asBoolean('test')).toBe(false); // `false` is counted as false literally.
+	expect(parse(['--test=true']).options.asBoolean('test')).toBe(true); // `true` is counted as true literally.
+	expect(parse(['--test=0']).options.asBoolean('test')).toBe(false); // `0` is counted as false literally.
+	expect(parse(['--test=1']).options.asBoolean('test')).toBe(true); // `1` is counted as true literally.
+	expect(parse(['--test=']).options.asBoolean('test')).toBe(false); // Empty strings are false.
+	expect(parse(['--test=Infinity']).options.asBoolean('test')).toBe(true); // `Infinity` is a string, strings are true.
+	expect(parse(['--test=null']).options.asBoolean('test')).toBe(true); // `null` is a string, strings are true.
+
+	expect(parse(['--test', true]).options.asBoolean('test')).toBe(true); // True goes in, true comes out.
+	expect(parse(['--test', false]).options.asBoolean('test')).toBe(false); // False goes in, false comes out.
+	expect(parse(['--test', 1]).options.asBoolean('test')).toBe(true);
+	expect(parse(['--test', 0]).options.asBoolean('test')).toBe(false);
+	expect(parse(['--test', '']).options.asBoolean('test')).toBe(false);
+	expect(parse(['--test', 'true']).options.asBoolean('test')).toBe(true);
+	expect(parse(['--test', 'false']).options.asBoolean('test')).toBe(false);
+	expect(parse(['--test', '1']).options.asBoolean('test')).toBe(true);
+	expect(parse(['--test', '0']).options.asBoolean('test')).toBe(false);
+	expect(parse(['--test', 'Infinity']).options.asBoolean('test')).toBe(true);
+	expect(parse(['--test', 'null']).options.asBoolean('test')).toBe(true);
+	expect(parse([]).options.asBoolean('test')).toBe(undefined);
+});
+
+test('parse() options asNumber', () => {
+	// Verbose on purpose for test failure readability.
+	expect(parse(['--test']).options.asNumber('test')).toBe(1);
+	expect(parse(['--test=false']).options.asNumber('test')).toBe(NaN);
+	expect(parse(['--test=true']).options.asNumber('test')).toBe(NaN);
+	expect(parse(['--test=0']).options.asNumber('test')).toBe(0);
+	expect(parse(['--test=1']).options.asNumber('test')).toBe(1);
+	expect(parse(['--test=']).options.asNumber('test')).toBe(0); // Empty strings become 0.
+	expect(parse(['--test=Infinity']).options.asNumber('test')).toBe(Infinity);
+	expect(parse(['--test=-Infinity']).options.asNumber('test')).toBe(-Infinity);
+	expect(parse(['--test=5.2434']).options.asNumber('test')).toBe(5.2434);
+	expect(parse(['--test=-5.2434']).options.asNumber('test')).toBe(-5.2434);
+	expect(parse(['--test=+542']).options.asNumber('test')).toBe(542);
+	expect(parse(['--test=0x10']).options.asNumber('test')).toBe(16);
+	expect(parse(['--test=0o10']).options.asNumber('test')).toBe(8);
+	expect(parse(['--test=0b10']).options.asNumber('test')).toBe(2);
+	expect(parse(['--test=1_000_000']).options.asNumber('test')).toBe(NaN);
+
+	expect(parse(['--test', true]).options.asNumber('test')).toBe(1);
+	expect(parse(['--test', false]).options.asNumber('test')).toBe(0);
+	expect(parse(['--test', 1]).options.asNumber('test')).toBe(1);
+	expect(parse(['--test', 0]).options.asNumber('test')).toBe(0);
+	expect(parse(['--test', '']).options.asNumber('test')).toBe(0);
+	expect(parse(['--test', 'true']).options.asNumber('test')).toBe(NaN);
+	expect(parse(['--test', 'false']).options.asNumber('test')).toBe(NaN);
+	expect(parse(['--test', '1']).options.asNumber('test')).toBe(1);
+	expect(parse(['--test', '0']).options.asNumber('test')).toBe(0);
+	expect(parse(['--test', Infinity]).options.asNumber('test')).toBe(Infinity);
+	expect(parse(['--test', -Infinity]).options.asNumber('test')).toBe(-Infinity);
+	expect(parse(['--test', 'Infinity']).options.asNumber('test')).toBe(Infinity);
+	expect(parse(['--test', '-Infinity']).options.asNumber('test')).toBe(-Infinity);
+	expect(parse(['--test', '5.2434']).options.asNumber('test')).toBe(5.2434);
+	expect(parse(['--test', '-5.2434']).options.asNumber('test')).toBe(-5.2434);
+	expect(parse(['--test', '+542']).options.asNumber('test')).toBe(542);
+	expect(parse(['--test', '0x10']).options.asNumber('test')).toBe(16);
+	expect(parse(['--test', '0o10']).options.asNumber('test')).toBe(8);
+	expect(parse(['--test', '0b10']).options.asNumber('test')).toBe(2);
+	expect(parse(['--test', '1_000_000']).options.asNumber('test')).toBe(NaN);
+	expect(parse(['--test', 5.2434]).options.asNumber('test')).toBe(5.2434);
+	expect(parse(['--test', -5.2434]).options.asNumber('test')).toBe(-5.2434);
+	expect(parse(['--test', 0x10]).options.asNumber('test')).toBe(16);
+	expect(parse(['--test', 0o10]).options.asNumber('test')).toBe(8);
+	expect(parse(['--test', 0b10]).options.asNumber('test')).toBe(2);
+	expect(parse(['--test', 1_000_000]).options.asNumber('test')).toBe(1000000); // Works as primitive number, not string parsing.
+
+	expect(parse([]).options.asNumber('test')).toBe(undefined);
+});
+
+test('parse() options asString', () => {
+	// Verbose on purpose for test failure readability.
+	expect(parse(['--test']).options.asString('test')).toBe('true');
+	expect(parse(['--test=false']).options.asString('test')).toBe('false');
+	expect(parse(['--test=true']).options.asString('test')).toBe('true');
+	expect(parse(['--test=0']).options.asString('test')).toBe('0');
+	expect(parse(['--test=1']).options.asString('test')).toBe('1');
+	expect(parse(['--test=']).options.asString('test')).toBe('');
+	expect(parse(['--test=Infinity']).options.asString('test')).toBe('Infinity');
+	expect(parse(['--test=-Infinity']).options.asString('test')).toBe('-Infinity');
+	expect(parse(['--test=5.2434']).options.asString('test')).toBe('5.2434');
+	expect(parse(['--test=-5.2434']).options.asString('test')).toBe('-5.2434');
+	expect(parse(['--test=+542']).options.asString('test')).toBe('+542');
+	expect(parse(['--test=0x10']).options.asString('test')).toBe('0x10');
+	expect(parse(['--test=0o10']).options.asString('test')).toBe('0o10');
+	expect(parse(['--test=0b10']).options.asString('test')).toBe('0b10');
+	expect(parse(['--test=1_000_000']).options.asString('test')).toBe('1_000_000');
+
+	expect(parse(['--test', true]).options.asString('test')).toBe('true');
+	expect(parse(['--test', false]).options.asString('test')).toBe('false');
+	expect(parse(['--test', 1]).options.asString('test')).toBe('1');
+	expect(parse(['--test', 0]).options.asString('test')).toBe('0');
+	expect(parse(['--test', '']).options.asString('test')).toBe('');
+	expect(parse(['--test', 'true']).options.asString('test')).toBe('true');
+	expect(parse(['--test', 'false']).options.asString('test')).toBe('false');
+	expect(parse(['--test', '1']).options.asString('test')).toBe('1');
+	expect(parse(['--test', '0']).options.asString('test')).toBe('0');
+	expect(parse(['--test', Infinity]).options.asString('test')).toBe('Infinity');
+	expect(parse(['--test', -Infinity]).options.asString('test')).toBe('-Infinity');
+});
