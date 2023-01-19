@@ -285,13 +285,14 @@ export function parse(argv: string[] = process.argv.splice(2)): ParsedArgs  {
 
 				// Keys must be a-zA-Z. If not, just drop the key.
 				const key = arg[1];
-				const charCode = key.charCodeAt(0);
-				if ((charCode < 97 || charCode > 122) && (charCode < 65 || charCode > 90))
-					continue;
 
 				let value: string | boolean = true;
 				if (argv.length > 0 && !isOption(argv[0]))
 					value = argv.shift();
+					
+				const charCode = key.charCodeAt(0);
+				if ((charCode < 97 || charCode > 122) && (charCode < 65 || charCode > 90))
+					continue;
 
 				opts[key] = value;
 			}
