@@ -293,3 +293,9 @@ test('parse() options asString', () => {
 	expect(parse(['--test', Infinity]).options.asString('test')).toBe('Infinity');
 	expect(parse(['--test', -Infinity]).options.asString('test')).toBe('-Infinity');
 });
+
+test('parse() invalid option argument consumption', () => {
+	// In the event that an option is invalid, it must still consume a potential argument.
+	expect(parse(['--5', 'invalid']).arguments.length).toBe(0);
+	expect(parse(['-5', 'invalid']).arguments.length).toBe(0);
+});
