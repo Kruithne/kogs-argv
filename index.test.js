@@ -46,24 +46,23 @@ test('parse() arguments', () => {
 
 test('parse() arguments asBoolean()', () => {
 	// Verbose on purpose for test failure readability.
-	const result = parse([
-		'Earth',	// 0
-		'false',	// 1
-		'true',		// 2
-		'0',		// 3
-		'1',		// 4
-		'',			// 5
-		false,		// 6
-		true,		// 7
-		1,			// 8
-		0,			// 9
-		5,			// 10
-		NaN,		// 11
-		0.1,		// 12
-		-1,			// 13
-		' ', 		// 14
-	]);
-
+	expect(parse(['Earth']).arguments.asBoolean(0)).toBe(true);
+	expect(parse(['false']).arguments.asBoolean(0)).toBe(false);
+	expect(parse(['true']).arguments.asBoolean(0)).toBe(true);
+	expect(parse(['0']).arguments.asBoolean(0)).toBe(false);
+	expect(parse(['1']).arguments.asBoolean(0)).toBe(true);
+	expect(parse(['']).arguments.asBoolean(0)).toBe(false);
+	expect(parse([false]).arguments.asBoolean(0)).toBe(false);
+	expect(parse([true]).arguments.asBoolean(0)).toBe(true);
+	expect(parse([1]).arguments.asBoolean(0)).toBe(true);
+	expect(parse([0]).arguments.asBoolean(0)).toBe(false);
+	expect(parse([5]).arguments.asBoolean(0)).toBe(true);
+	expect(parse([NaN]).arguments.asBoolean(0)).toBe(false);
+	expect(parse([0.1]).arguments.asBoolean(0)).toBe(true);
+	expect(parse([-1]).arguments.asBoolean(0)).toBe(true);
+	expect(parse([' ']).arguments.asBoolean(0)).toBe(true);
+	expect(parse([undefined]).arguments.asBoolean(0)).toBe(undefined);
+	
 	expect(result.arguments.asBoolean(0)).toBe(true);
 	expect(result.arguments.asBoolean(1)).toBe(false);
 	expect(result.arguments.asBoolean(2)).toBe(true);
@@ -84,76 +83,50 @@ test('parse() arguments asBoolean()', () => {
 
 test('parse() arguments asNumber()', () => {
 	// Verbose on purpose for test failure readability.
-	const result = parse([
-		'Earth',	// 0
-		'false',	// 1
-		'true',		// 2
-		'0',		// 3
-		'',			// 4
-		false,		// 5
-		true,		// 6
-		5,			// 7
-		NaN,		// 8
-		0.152,		// 9
-		'2.242',	// 10
-		' ', 		// 11
-		'-35',		// 12
-		'+100',		// 13
-		'-2.5',		// 14
-		'Infinity',	// 15
-		'-Infinity',// 16
-		'+2.5',		// 17
-		'0x10',		// 18
-		'0b1011',	// 19
-		'0o20',		// 20
-		'5_000',	// 21
-	]);
-
-	expect(result.arguments.asNumber(0)).toBe(NaN);
-	expect(result.arguments.asNumber(1)).toBe(NaN);
-	expect(result.arguments.asNumber(2)).toBe(NaN);
-	expect(result.arguments.asNumber(3)).toBe(0);
-	expect(result.arguments.asNumber(4)).toBe(0);
-	expect(result.arguments.asNumber(5)).toBe(0);
-	expect(result.arguments.asNumber(6)).toBe(1);
-	expect(result.arguments.asNumber(7)).toBe(5);
-	expect(result.arguments.asNumber(8)).toBe(NaN);
-	expect(result.arguments.asNumber(9)).toBe(0.152);
-	expect(result.arguments.asNumber(10)).toBe(2.242);
-	expect(result.arguments.asNumber(11)).toBe(0);
-	expect(result.arguments.asNumber(12)).toBe(-35);
-	expect(result.arguments.asNumber(13)).toBe(100);
-	expect(result.arguments.asNumber(14)).toBe(-2.5);
-	expect(result.arguments.asNumber(15)).toBe(Infinity);
-	expect(result.arguments.asNumber(16)).toBe(-Infinity);
-	expect(result.arguments.asNumber(17)).toBe(2.5);
-	expect(result.arguments.asNumber(18)).toBe(16);
-	expect(result.arguments.asNumber(19)).toBe(11);
-	expect(result.arguments.asNumber(20)).toBe(16);
-	expect(result.arguments.asNumber(21)).toBe(NaN);
-	expect(result.arguments.asNumber(22)).toBe(undefined);
+	expect(parse(['Earth']).arguments.asNumber(0)).toBe(NaN);
+	expect(parse(['false']).arguments.asNumber(0)).toBe(NaN);
+	expect(parse(['true']).arguments.asNumber(0)).toBe(NaN);
+	expect(parse(['0']).arguments.asNumber(0)).toBe(0);
+	expect(parse(['']).arguments.asNumber(0)).toBe(0);
+	expect(parse([false]).arguments.asNumber(0)).toBe(0);
+	expect(parse([true]).arguments.asNumber(0)).toBe(1);
+	expect(parse([5]).arguments.asNumber(0)).toBe(5);
+	expect(parse([NaN]).arguments.asNumber(0)).toBe(NaN);
+	expect(parse([0.152]).arguments.asNumber(0)).toBe(0.152);
+	expect(parse(['2.242']).arguments.asNumber(0)).toBe(2.242);
+	expect(parse([' ']).arguments.asNumber(0)).toBe(0);
+	expect(parse(['-35']).arguments.asNumber(0)).toBe(-35);
+	expect(parse(['+100']).arguments.asNumber(0)).toBe(100);
+	expect(parse(['-2.5']).arguments.asNumber(0)).toBe(-2.5);
+	expect(parse(['Infinity']).arguments.asNumber(0)).toBe(Infinity);
+	expect(parse(['-Infinity']).arguments.asNumber(0)).toBe(-Infinity);
+	expect(parse(['+2.5']).arguments.asNumber(0)).toBe(2.5);
+	expect(parse(['0x10']).arguments.asNumber(0)).toBe(16);
+	expect(parse(['0b1011']).arguments.asNumber(0)).toBe(11);
+	expect(parse(['0o20']).arguments.asNumber(0)).toBe(16);
+	expect(parse(['5_000']).arguments.asNumber(0)).toBe(NaN);
+	expect(parse([undefined]).arguments.asNumber(0)).toBe(undefined);	
 });
 
 test('parse() arguments asString()', () => {
 	// Verbose on purpose for test failure readability.
-	const result = parse([
-		'Earth',	// 0
-		'false',	// 1
-		'true',		// 2
-		'0',		// 3
-		'1',		// 4
-		'',			// 5
-		false,		// 6
-		true,		// 7
-		1,			// 8
-		0,			// 9
-		5,			// 10
-		NaN,		// 11
-		0.1,		// 12
-		-1,			// 13
-		' ', 		// 14
-	]);
-
+	expect(parse(['Earth']).arguments.asString(0)).toBe('Earth');
+	expect(parse(['false']).arguments.asString(0)).toBe('false');
+	expect(parse(['true']).arguments.asString(0)).toBe('true');
+	expect(parse(['0']).arguments.asString(0)).toBe('0');
+	expect(parse(['1']).arguments.asString(0)).toBe('1');
+	expect(parse(['']).arguments.asString(0)).toBe('');
+	expect(parse([false]).arguments.asString(0)).toBe('false');
+	expect(parse([true]).arguments.asString(0)).toBe('true');
+	expect(parse([1]).arguments.asString(0)).toBe('1');
+	expect(parse([0]).arguments.asString(0)).toBe('0');
+	expect(parse([5]).arguments.asString(0)).toBe('5');
+	expect(parse([NaN]).arguments.asString(0)).toBe('NaN');
+	expect(parse([0.1]).arguments.asString(0)).toBe('0.1');
+	expect(parse([-1]).arguments.asString(0)).toBe('-1');
+	expect(parse([' ']).arguments.asString(0)).toBe(' ');
+	expect(parse([undefined]).arguments.asString(0)).toBe(undefined);
+	
 	expect(result.arguments.asString(0)).toBe('Earth');
 	expect(result.arguments.asString(1)).toBe('false');
 	expect(result.arguments.asString(2)).toBe('true');
