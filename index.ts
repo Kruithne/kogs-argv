@@ -1,11 +1,15 @@
 
 type PrimitiveType = string | number | boolean;
 
-// TODO: Add TSDoc to sanitizeKey.
 // TODO: Potentially add .asArray() support?
 // TODO: Add manifest support.
 // TODO: Add help page generation.
 
+/**
+ * Sanitizes a key to be used as a property name.
+ * @param key - The key to sanitize.
+ * @returns The sanitized key.
+ */
 function sanitizeKey(key: string): string {
 	let result = '';
 	let capitalizeNext = false;
