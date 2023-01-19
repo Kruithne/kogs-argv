@@ -240,6 +240,10 @@ interface ParsedArgs {
 
 /**
  * Parses the command line arguments.
+ * 
+ * @throws {TypeError}
+ * Thrown if any of the arguments are not of type `string|number|boolean`.
+ * 
  * @param argv - The command line arguments to parse. Defaults to `process.argv.splice(2)`.
  * @returns The parsed command line arguments.
  */
@@ -289,7 +293,7 @@ export function parse(argv: string[] = process.argv.splice(2)): ParsedArgs  {
 				let value: string | boolean = true;
 				if (argv.length > 0 && !isOption(argv[0]))
 					value = argv.shift();
-					
+
 				const charCode = key.charCodeAt(0);
 				if ((charCode < 97 || charCode > 122) && (charCode < 65 || charCode > 90))
 					continue;
