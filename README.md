@@ -87,12 +87,16 @@ Everything parsed from the command line is returned as a string by default, but 
 Both the `.options` and `.arguments` properties have three helper functions that can be used to retrieve the values as specific types.
 
 ```js
-// --foo=5 --bar=false --baz=1.5 --qux=hello
+// --foo=5 --bar=false --baz=1.5 --qux=hello 50
 
 // argv.options.foo === '5'
 // argv.options.asNumber('foo') === 5
 // argv.options.asBoolean('bar') === false
 // argv.options.asNumber('baz') === 1.5
+
+// Works on the .arguments array too.
+// argv.arguments[0] === '50'
+// argv.arguments.asNumber(0) === 50
 ```
 
 #### asNumber
