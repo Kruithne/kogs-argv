@@ -170,21 +170,12 @@ test('parse() short option key sanitization', () => {
 });
 
 test('parse() long option key sanitzation', () => {
-	const results = parse([
-		'--test', // Should become results.options.test
-		'--my-other-test', // Should become results.options.myOtherTest
-		'--5-fifty', // Should become results.options.fifty
-		'--6424', // Should be not be present, invalid key.
-		'--MANGO', // Should become results.options.mango
-		'--MANGO-JAM', // Should become results.options.mangoJam
-	]);
-
-	expect(results.options.test).toBe(true);
-	expect(results.options.myOtherTest).toBe(true);
-	expect(results.options.fifty).toBe(true);
-	expect(results.options.mango).toBe(true);
-	expect(results.options.mangoJam).toBe(true);
-	expect(results.options['6424']).toBe(undefined);
+	expect(parse(['--test']).options.test).toBe(true);
+	expect(parse(['--my-other-test']).options.myOtherTest).toBe(true);
+	expect(parse(['--5-fifty']).options.fifty).toBe(true);
+	expect(parse(['--MANGO']).options.mango).toBe(true);
+	expect(parse(['--MANGO-JAM']).options.mangoJam).toBe(true);
+	expect(parse(['--6424']).options['6424']).toBe(undefined);
 });
 
 test('parse() options asBoolean', () => {
