@@ -135,11 +135,15 @@ test('parse() arguments prototype', () => {
 });
 
 test('parse() options', () => {
-	const results = parse(['Earth', '--test', '--my-other-test', 'Jupiter', 'Mars', '--sun=true', 'Venus']);
+	const results = parse(['Earth', '-c', '--test', '-b', 'free', '--my-other-test', 'Jupiter', 'Mars', '--sun=true', 'Venus']);
 
 	expect(results.options.test).toBe(true); // Non-valued options are true.
 	expect(results.options.myOtherTest).toBe('Jupiter');
 	expect(results.options.sun).toBe('true'); // Option values are not automatically coerced.
+
+	// Short options.
+	expect(results.options.c).toBe(true);
+	expect(results.options.b).toBe('free');
 
 	// Arguments should not be incorrectly consumed by options.
 	expect(results.arguments[0]).toBe('Earth');
@@ -147,7 +151,25 @@ test('parse() options', () => {
 	expect(results.arguments[2]).toBe('Venus');
 });
 
-test('parse() key sanitzation', () => {
+test('parse() short option key sanitization', () => {
+	expect(parse(['-t']).options.t).toBe(true);
+
+	expect(parse(['-t', 'foo']).options.t).toBe('foo');
+	expect(parse(['-5']).options['5']).toBe(undefined);
+
+	// Short options do not support = syntax.
+	expect(parse(['-t=foo']).options.t).toBe(undefined);
+
+	// Do not consume the short one.
+	expect(parse(['-t', '-f']).options.t).toBe(true);
+	expect(parse(['-t', '-f']).options.f).toBe(true);
+
+	// Short option groups are not supported.
+	expect(parse(['-ab']).options.a).toBe(undefined);
+	expect(parse(['-ab']).options.b).toBe(undefined);
+});
+
+test('parse() long option key sanitzation', () => {
 	const results = parse([
 		'--test', // Should become results.options.test
 		'--my-other-test', // Should become results.options.myOtherTest
