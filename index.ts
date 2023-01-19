@@ -42,6 +42,36 @@ function sanitizeKey(key: string): string {
 	return result;
 }
 
+/**
+ * Checks if the key is a long option.
+ * @param key - The key to check.
+ * @returns `true` if the key is a long option, `false` otherwise.
+ */
+function isLongOption(key: string): boolean {
+	return key.startsWith('--');
+}
+
+/**
+ * Checks if the key is a short option.
+ * @param key - The key to check.
+ * @returns `true` if the key is a short option, `false` otherwise.
+ */
+function isShortOption(key: string): boolean {
+	return key.startsWith('-') && key.length === 2;
+}
+
+/**
+ * Checks if the key is a long or short option.
+ * @param key - The key to check.
+ * @returns `true` if the key is a long or short option, `false` otherwise.
+ */
+function isOption(key: PrimitiveType): boolean {
+	if (typeof key !== 'string')
+		return false;
+
+	return isLongOption(key) || isShortOption(key);
+}
+
 const retrieverPrototype = {
 	/**
 	 * Retrieves the value of the key in a type-safe manner.
@@ -224,31 +254,47 @@ export function parse(argv: string[] = process.argv.splice(2)): ParsedArgs  {
 		if (argType !== 'string' && argType !== 'number' && argType !== 'boolean')
 			throw new TypeError(`CLI arguments must be of type string|number|boolean, but got ${argType}.`);
 
-		if (argType === 'string' && arg.startsWith('--')) {
-			const index = arg.indexOf('=');
+		if (isOption(arg)) {
+			if (isLongOption(arg)) {
+				const index = arg.indexOf('=');
 
-			let key: string;
-			let value: string | boolean;
+				let key: string;
+				let value: string | boolean;
 
-			if (index > -1) {
-				// Option with value (e.g. --option=value)
-				key = arg.substring(2, index);
-				value = arg.substring(index + 1);
-			} else if (argv.length > 0 && !argv[0].startsWith?.('-')) {
-				// Option with value (e.g. --option value)
-				key = arg.substring(2);
-				value = argv.shift();
+				if (index > -1) {
+					// Option with value (e.g. --option=value)
+					key = arg.substring(2, index);
+					value = arg.substring(index + 1);
+				} else if (argv.length > 0 && !isOption(argv[0])) {
+					// Option with value (e.g. --option value)
+					key = arg.substring(2);
+					value = argv.shift();
+				} else {
+					// Standalone option (e.g. --option)
+					key = arg.substring(2);
+					value = true;
+				}
+
+				key = sanitizeKey(key);
+
+				// Keys with only invalid characters will just be dropped.
+				if (key.length > 0)
+					opts[key] = value;
 			} else {
-				// Standalone option (e.g. --option)
-				key = arg.substring(2);
-				value = true;
-			}
+				// Short option (e.g. -o)
 
-			key = sanitizeKey(key);
+				// Keys must be a-zA-Z. If not, just drop the key.
+				const key = arg[1];
+				const charCode = key.charCodeAt(0);
+				if ((charCode < 97 || charCode > 122) && (charCode < 65 || charCode > 90))
+					continue;
 
-			// Keys with only invalid characters will just be dropped.
-			if (key.length > 0)
+				let value: string | boolean = true;
+				if (argv.length > 0 && !isOption(argv[0]))
+					value = argv.shift();
+
 				opts[key] = value;
+			}
 		} else {
 			args.push(arg);
 		}
