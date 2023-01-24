@@ -299,3 +299,16 @@ test('parse() invalid option argument consumption', () => {
 	expect(parse(['--5', 'invalid']).arguments.length).toBe(0);
 	expect(parse(['-5', 'invalid']).arguments.length).toBe(0);
 });
+
+test('parse() asArray', () => {
+	expect(parse(['--test', 'foo,bar,baz']).options.asArray('test')).toEqual(['foo', 'bar', 'baz']);
+	expect(parse(['--test','foo|bar|baz']).options.asArray('test')).toEqual(['foo|bar|baz']);
+	expect(parse(['--test', 'foo bar baz']).options.asArray('test')).toEqual(['foo bar baz']);
+
+	expect(parse(['--test', 'foo,bar,baz']).options.asArray('test', ',')).toEqual(['foo', 'bar', 'baz']);
+	expect(parse(['--test','foo|bar|baz']).options.asArray('test', '|')).toEqual(['foo', 'bar', 'baz']);
+	expect(parse(['--test', 'foo bar baz']).options.asArray('test', ' ')).toEqual(['foo', 'bar', 'baz']);
+
+	expect(parse(['--test', 'foo , bar , baz ']).options.asArray('test', ',', true)).toEqual(['foo', 'bar', 'baz']);
+	expect(parse(['--test', 'foo , bar , baz ']).options.asArray('test', ',', false)).toEqual(['foo ', ' bar ', ' baz ']);
+});

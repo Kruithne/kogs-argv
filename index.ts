@@ -156,6 +156,37 @@ const retrieverPrototype = {
 	},
 
 	/**
+	 * Retrieves the value of the key as an array of strings.
+	 * 
+	 * @remarks
+	 * The value is parsed using the same rules as {@link Config.asString}.
+	 * - Missing keys are always returned as `undefined`, not an empty array.
+	 * - String is split by the separator and then each item is optionally trimmed.
+	 * 
+	 * @param key - The key/index to retrieve the value for.
+	 * @param separator - The separator to use when splitting the string into an array.
+	 * @param trimWhitespace - Whether to trim whitespace from the beginning and end of each array item.
+	 * @returns The value of the key as an array of strings, or `undefined` if the key was not found.
+	 */
+	asArray: function(key: string | number, separator: string = ',', trimWhitespace: boolean = true): string[] | undefined {
+		let value: PrimitiveType = this._getValue(key);
+
+		// Always return undefined if key was not found.
+		if (value === undefined)
+			return undefined;
+
+		if (typeof value !== 'string')
+			value = String(value);
+
+		let arr: string[] = value.split(separator);
+
+		if (trimWhitespace)
+			arr = arr.map((item) => item.trim());
+
+		return arr;
+	},
+
+	/**
 	 * Retrieves the value of the key as a `boolean`.
 	 * 
 	 * @remarks

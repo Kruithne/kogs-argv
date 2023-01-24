@@ -143,6 +143,24 @@ The value is parsed using the native `String` function.
 
 For more information, see the [MDN String documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String).
 
+
+#### asArray
+
+Retrieve the value of an option or argument as an array. This will first retrieve the value as a string (using the `asString` function) and then split it into an array.
+
+```js
+// --foo=1,2,3,4,5
+// argv.options.asArray('foo') === ['1', '2', '3', '4', '5']
+```
+
+By default the array is split on `,` characters and whitespace is trimmed from the start and end of each element. Both of these can be controlled.
+
+```js
+// --foo=1 | 2 | 3 | 4 | 5
+// argv.options.asArray('foo', '|') === ['1', '2', '3', '4', '5']
+// argv.options.asArray('foo', '|', false) === ['1 ', ' 2 ', ' 3 ', ' 4 ', ' 5']
+```
+
 ## What is `@kogs`?
 `@kogs` is a collection of packages that I've written to consolidate the code I often reuse across my projects with the following goals in mind:
 
