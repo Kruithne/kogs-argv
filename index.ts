@@ -1,4 +1,6 @@
 
+import log from '@kogs/logger';
+
 type PrimitiveType = string | number | boolean;
 
 /**
@@ -263,6 +265,106 @@ interface ParsedArgs {
 	 * and have not been assigned to an option as a value.
 	 */
 	arguments: ParsedArgsArguments;
+
+	/**
+	 * Prints the version information to the console.
+	 * 
+	 * @remarks
+	 * By default, this will only print the version information if the `--version` or `-v` option is specified.
+	 * To always print the version information, set `alwaysPrint` to `true`.
+	 * 
+	 * Unless `alwaysPrint` is `true`, the process will exit after printing the version information.
+	 * This can be disabled by setting `exit` to `false`.
+	 * 
+	 * @param options - Options.
+	 * @param options.name - The name of the program.
+	 * @param options.version - The version of the program.
+	 * @param options.alwaysPrint - Whether to always print the version information.
+	 * @param options.exit - Whether to exit the process after printing the version information.
+	 */
+	version: typeof version;
+
+	/**
+	 * Prints the help information to the console.
+	 * 
+	 * @remarks
+	 * By default, this will only print the help information if the `--help` or `-h` option is specified.
+	 * The process will exit after printing the help information.
+	 * 
+	 * @param options - Options.
+	 * @param options.usage - The usage information to print.
+	 * @param options.url - The URL to print.
+	 * @param options.entries - The help entries to print.
+	 */
+	help: typeof help;
+}
+
+type VersionOptions = {
+	name: string;
+	version: string;
+	alwaysPrint?: boolean;
+	exit?: boolean;
+}
+
+function version(this: ParsedArgs, options: VersionOptions): void {
+	if (options.name === undefined)
+		throw new TypeError('version(): {options.name} must be provided');
+
+	if (options.version === undefined)
+		throw new TypeError('version(): {options.version} must be provided');
+
+	if (options.alwaysPrint || this.options.version || this.options.v) {
+		log.info('%s {%s}', options.name, options.version);
+
+		if (!options.alwaysPrint && options.exit !== false)
+			process.exit(0);
+	}
+}
+
+type HelpOption = {
+	name: string;
+	description: string;
+}
+
+type HelpOptions = {
+	usage?: string;
+	url?: string;
+	entries: HelpOption[];
+}
+
+function help(this: ParsedArgs, options: HelpOptions): void {
+	if (!this.options.help && !this.options.h)
+		return;
+
+	if (options.usage !== undefined)
+		log.info(options.usage);
+
+	if (Array.isArray(options.entries)) {
+		log.blank().info('Options:');
+
+		for (const option of options.entries) {
+			if (option.name === undefined)
+				throw new TypeError('help(): {options.entries.name} must be provided');
+
+			if (option.description === undefined)
+				throw new TypeError('help(): {options.entries.description} must be provided');
+		}
+
+		const longestName = options.entries.reduce((longest: number, option: HelpOption) => {
+			return Math.max(longest, option.name.replace(/[{}]/g, '').length);
+		}, 0);
+
+		for (const option of options.entries) {
+			const space = ' '.repeat(3 + longestName - option.name.replace(/[{}]/g, '').length);
+			log.info('  ' + option.name + space + option.description);
+		}
+	}
+
+	if (options.url !== undefined)
+		log.blank().info('For more information, see {%s}', options.url);
+
+	log.blank();
+	process.exit(0);
 }
 
 /**
@@ -334,7 +436,9 @@ export function parse(argv: string[] = process.argv.splice(2)): ParsedArgs  {
 
 	return {
 		options: opts,
-		arguments: args
+		arguments: args,
+		version,
+		help
 	};
 }
 

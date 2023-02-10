@@ -5,7 +5,7 @@
 
 - Simple and easy-to-use API.
 - Full [TypeScript](https://www.typescriptlang.org/) definitions.
-- Zero dependencies.
+- Lightweight.
 
 ## Installation
 ```bash
@@ -160,6 +160,92 @@ By default the array is split on `,` characters and whitespace is trimmed from t
 // argv.options.asArray('foo', '|') === ['1', '2', '3', '4', '5']
 // argv.options.asArray('foo', '|', false) === ['1 ', ' 2 ', ' 3 ', ' 4 ', ' 5']
 ```
+
+### Version
+
+The `.version()` helper function can be to print the version of your application if the `--version` or `-v` options are passed.
+
+```js
+const argv = parse();
+argv.version({
+  name: 'My Application',
+  version: '1.0.0'
+});
+```
+
+```sh
+$ node my-app.js --version
+My Application v1.0.0
+```
+
+By default, the application will exit after printing the version. This can be disabled by setting the `exit` option to `false`.
+
+```js
+argv.version({
+  name: 'My Application',
+  version: '1.0.0'
+  exit: false
+});
+```
+
+Additionally, the `alwaysPrint` option can be set to `true` to always print the version, even if the `--version` or `-v` options are not passed.
+
+```js
+argv.version({
+  name: 'My Application',
+  version: '1.0.0'
+  alwaysPrint: true
+});
+```
+
+```sh
+$ node my-app.js
+My Application v1.0.0
+```
+
+### Help
+
+The `.help()` helper function can be used to print a help message if the `--help` or `-h` options are passed.
+
+```js
+const argv = parse();
+argv.help({
+	entries: [
+		{ name: '--foo <{bar}>', description: 'This is a description.' },
+		{ name: '--baz', description: 'This is another description.' }
+	]
+});
+```
+```sh
+$ node my-app.js --help
+Options:
+  --foo <{bar}>  This is a description.
+  --baz          This is another description.
+```
+
+Two additional options, `usage` and `url` can be passed in to further customize the help message.
+
+```js
+argv.help({
+	usage: 'Usage: $ my-app.js [options]',
+	url: 'https://www.google.co.uk/',
+	entries: [
+		{ name: '--foo <{bar}>', description: 'This is a description.' },
+		{ name: '--baz', description: 'This is another description.' }
+	]
+});
+```
+```sh
+$ node my-app.js --help
+Usage: $ my-app.js [options]
+
+Options:
+  --foo <{bar}>  This is a description.
+  --baz          This is another description.
+
+For more information, see https://www.google.co.uk/
+```
+
 
 ## What is `@kogs`?
 `@kogs` is a collection of packages that I've written to consolidate the code I often reuse across my projects with the following goals in mind:

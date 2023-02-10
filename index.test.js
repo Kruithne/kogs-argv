@@ -1,9 +1,12 @@
-import { expect, test } from '@jest/globals';
+import { expect, test, jest } from '@jest/globals';
 import argv, { parse } from './index.js';
 
 test('API availability', () => {
 	expect(typeof argv.parse).toBe('function');
 	expect(typeof parse).toBe('function');
+
+	const result = argv.parse();
+	expect(typeof result.version).toBe('function');
 });
 
 test('parse() prototype and return value', () => {
@@ -311,4 +314,172 @@ test('parse() asArray', () => {
 
 	expect(parse(['--test', 'foo , bar , baz ']).options.asArray('test', ',', true)).toEqual(['foo', 'bar', 'baz']);
 	expect(parse(['--test', 'foo , bar , baz ']).options.asArray('test', ',', false)).toEqual(['foo ', ' bar ', ' baz ']);
+});
+
+test('parse().version() with default options', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+	
+	try {
+		parse(['--version']).version({ name: 'Test Application', version: '1.0.0' });
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Test Application \x1B[36m1.0.0\x1B[39m\n');
+		expect(exit).toHaveBeenCalledWith(0);
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().version() with missing required options', () => {
+	const argv = parse(['--version']);
+	expect(() => argv.version({ version: '1.0.0' })).toThrow();
+	expect(() => argv.version({ name: 'Test Application' })).toThrow();
+	expect(() => argv.version({})).toThrow();
+});
+
+test('parse().version() with shorthand option', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+
+	try {
+		parse(['-v']).version({ name: 'Test Application', version: '1.0.0', shorthand: 'v' });
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Test Application \x1B[36m1.0.0\x1B[39m\n');
+		expect(exit).toHaveBeenCalledWith(0);
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().version() with no --version or -v provided', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+	
+	try {
+		parse([]).version({ name: 'Test Application', version: '1.0.0' });
+
+		expect(stdout).not.toHaveBeenCalled();
+		expect(exit).not.toHaveBeenCalled();
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().version() with `alwaysPrint`', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+	
+	try {
+		parse([]).version({ name: 'Test Application', version: '1.0.0', alwaysPrint: true });
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Test Application \x1B[36m1.0.0\x1B[39m\n');
+		expect(exit).not.toHaveBeenCalled();
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().version() with `exit` set to false', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+	
+	try {
+		parse(['--version']).version({ name: 'Test Application', version: '1.0.0', exit: false });
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Test Application \x1B[36m1.0.0\x1B[39m\n');
+		expect(exit).not.toHaveBeenCalled();
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().help() with default options', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+
+	try {
+		parse(['--help']).help({ entries: [
+			{ name: '--test <{foo}>', description: 'Test option' }
+		]});
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Options:\n');
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m   --test <\x1B[36mfoo\x1B[39m>   Test option\n');
+
+		expect(exit).toHaveBeenCalledWith(0);
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().help() with shorthand option', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+
+	try {
+		parse(['-h']).help({ entries: [
+			{ name: '--test <{foo}>', description: 'Test option' },
+			{ name: '--another <{bar}>', description: 'Another option' }
+		]});
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Options:\n');
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m   --test <\x1B[36mfoo\x1B[39m>      Test option\n');
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m   --another <\x1B[36mbar\x1B[39m>   Another option\n');
+
+		expect(exit).toHaveBeenCalledWith(0);
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().help() with `usage` string', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+
+	try {
+		parse(['--help']).help({
+			usage: 'Usage: > test [{options}]',
+			entries: [
+				{ name: '--test <{foo}>', description: 'Test option' }
+			]
+		});
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Usage: > test [\x1B[36moptions\x1B[39m]\n');
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Options:\n');
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m   --test <\x1B[36mfoo\x1B[39m>   Test option\n');
+
+		expect(exit).toHaveBeenCalledWith(0);
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
+});
+
+test('parse().help() with `url` string', () => {
+	const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+	const exit = jest.spyOn(process, 'exit').mockImplementation(() => true);
+
+	try {
+		parse(['--help']).help({
+			url: 'https://example.com',
+			entries: [
+				{ name: '--test <{foo}>', description: 'Test option' }
+			]
+		});
+
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m Options:\n');
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m   --test <\x1B[36mfoo\x1B[39m>   Test option\n');
+		expect(stdout).toHaveBeenCalledWith('\x1B[36mi\x1B[39m For more information, see \x1B[36mhttps://example.com\x1B[39m\n');
+
+		expect(exit).toHaveBeenCalledWith(0);
+	} finally {
+		stdout.mockRestore();
+		exit.mockRestore();
+	}
 });
