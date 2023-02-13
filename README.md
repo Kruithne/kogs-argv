@@ -28,6 +28,8 @@ const argv = parse();
 
 - [Parse](#parse) - Parse command line arguments.
 - [Type Conversions](#type-conversions) - Retrieve arguments and options as specific types.
+- [Version](#version) - Helper function for `--version`.
+- [Help](#help) - Helper function for `--help`.
 
 ### Parse
 
