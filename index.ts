@@ -313,10 +313,11 @@ function version(this: ParsedArgs, options: VersionOptions): void {
 	if (options.version === undefined)
 		throw new TypeError('version(): {options.version} must be provided');
 
-	if (options.alwaysPrint || this.options.version || this.options.v) {
+	const versionOptionSet = this.options.version || this.options.v;
+	if (options.alwaysPrint || versionOptionSet) {
 		log.info('%s {%s}', options.name, options.version);
 
-		if (!options.alwaysPrint && options.exit !== false)
+		if (options.exit === true || (options.exit !== false && versionOptionSet))
 			process.exit(0);
 	}
 }
