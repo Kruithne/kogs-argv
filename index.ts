@@ -243,7 +243,7 @@ const retrieverPrototype = {
 type RetrieverPrototype = typeof retrieverPrototype;
 interface ParsedArgsArguments extends Array<string>, RetrieverPrototype {}
 type ParsedArgsOptions = RetrieverPrototype & {
-	[key: string]: string | boolean;
+	[key: string]: string | boolean | undefined;
 };
 
 interface ParsedArgs {
